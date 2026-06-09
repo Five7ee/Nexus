@@ -1,6 +1,7 @@
 {
   "project": "Mon Projet",
   "description": "Manuel de montage interactif. Scannez le QR code de chaque étape pour visualiser l'animation 3D.",
+  "fps": 24,
   "steps": [
     {
       "id": "etape-01",
@@ -8,7 +9,11 @@
       "title": "Assemblage du châssis",
       "description": "Fixer les profilés latéraux sur la base avec les vis M4.",
       "model": "etape-01",
-      "image": "images/etape-01.jpg"
+      "image": "images/etape-01.jpg",
+      "markers": [
+        { "frame": 15, "label": "Aligner la fente avec l'ergot", "loop_start": 10 },
+        { "frame": 38, "label": "Vérifier l'enclenchement des clips", "loop_start": 30 }
+      ]
     },
     {
       "id": "etape-02",
