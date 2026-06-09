@@ -245,7 +245,7 @@
     if (!anims || anims.length === 0) return;
     viewer.animationName = anims[0];
     viewer.timeScale = 1;
-    viewer.play({ repetitions: Infinity });
+    viewer.play({ repetitions: 1 });
     playing = true;
     setPlayUI(true);
     setTimeout(() => {
@@ -275,20 +275,22 @@
       pip.title = m.label;
       pip.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         viewer.currentTime = t;
         viewer.pause();
         playing = false;
         setPlayUI(false);
         showToast(m.label);
       });
-      pip.addEventListener('touchend', (e) => {
+      pip.addEventListener('touchstart', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         viewer.currentTime = t;
         viewer.pause();
         playing = false;
         setPlayUI(false);
         showToast(m.label);
-      });
+      }, { passive: false });
       scrubTrack.appendChild(pip);
     });
   }
@@ -314,7 +316,14 @@
         scrubThumb.style.left  = pct + '%';
         tlTime.textContent = `${t.toFixed(1)} / ${duration.toFixed(1)}s`;
 
-        // Auto-toast quand on passe sur un marqueur (±0.15s)
+        // Détection fin d'animation
+        if (playing && t >= duration - 0.05) {
+          viewer.pause();
+          playing = false;
+          setPlayUI(false);
+          lastMarkerIdx = -1;
+        }
+
         if (playing && markers.length) {
           const nearby = markers.findIndex(m => Math.abs((m.frame / fps) - t) < 0.15);
           if (nearby !== -1 && nearby !== lastMarkerIdx) {
@@ -332,15 +341,22 @@
 
   // ─── Play/Pause ───
   btnPlay.addEventListener('click', () => {
-    if (playing) { viewer.pause(); playing = false; }
-    else { viewer.play({ repetitions: Infinity }); playing = true; }
+    if (playing) {
+      viewer.pause(); playing = false;
+    } else {
+      // Si à la fin, remettre au début
+      if (duration > 0 && viewer.currentTime >= duration - 0.05) {
+        viewer.currentTime = 0;
+      }
+      viewer.play({ repetitions: 1 }); playing = true;
+    }
     setPlayUI(playing);
   });
 
   // ─── Rewind ───
   btnRewind.addEventListener('click', () => {
     viewer.currentTime = 0;
-    if (!playing) { viewer.play({ repetitions: Infinity }); playing = true; setPlayUI(true); }
+    if (!playing) { viewer.play({ repetitions: 1 }); playing = true; setPlayUI(true); }
   });
 
   // ─── Vitesse ───
