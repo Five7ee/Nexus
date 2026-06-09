@@ -104,17 +104,9 @@ async function init() {
     if (!res.ok) throw new Error();
     config = await res.json();
   } catch {
-    config = {
-      project: "Mon Projet",
-      description: "Manuel de montage interactif.",
-      fps: 24,
-      steps: [
-        { id:"etape-01", step:1, title:"Assemblage du châssis", description:"Fixer les profilés latéraux.", model:"etape-01",
-          markers:[{frame:15,label:"Aligner la fente avec l'ergot"},{frame:38,label:"Vérifier l'enclenchement des clips"}] },
-        { id:"etape-02", step:2, title:"Montage des roulements", description:"Installer les roulements.", model:"etape-02" },
-        { id:"etape-03", step:3, title:"Câblage électrique", description:"Connecter les nappes.", model:"etape-03" }
-      ]
-    };
+    document.getElementById('project-title').textContent = 'Erreur';
+    document.getElementById('project-desc').textContent = 'Impossible de charger steps.json.';
+    return;
   }
 
   const fps = config.fps || 24;
