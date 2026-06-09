@@ -1,0 +1,30 @@
+{
+  "project": "Mon Projet",
+  "description": "Manuel de montage interactif. Scannez le QR code de chaque étape pour visualiser l'animation 3D.",
+  "steps": [
+    {
+      "id": "etape-01",
+      "step": 1,
+      "title": "Assemblage du châssis",
+      "description": "Fixer les profilés latéraux sur la base avec les vis M4.",
+      "model": "etape-01",
+      "image": "images/etape-01.jpg"
+    },
+    {
+      "id": "etape-02",
+      "step": 2,
+      "title": "Montage des roulements",
+      "description": "Installer les roulements aux quatre coins du châssis.",
+      "model": "etape-02",
+      "image": "images/etape-02.jpg"
+    },
+    {
+      "id": "etape-03",
+      "step": 3,
+      "title": "Câblage électrique",
+      "description": "Connecter les nappes selon le schéma de câblage.",
+      "model": "etape-03",
+      "image": "images/etape-03.jpg"
+    }
+  ]
+}
