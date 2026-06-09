@@ -50,18 +50,37 @@
     }
     #timeline.visible { display: flex; }
 
-    /* Marqueur tooltip */
+    /* Toast zone : contient le toast + le bouton suivant */
+    #toast-zone {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    }
+
+    /* Toast marqueur */
     #marker-toast {
       display: flex; align-items: center; gap: 8px;
       padding: 7px 12px;
       background: var(--warn-glow); border: 1px solid var(--warn);
       border-radius: 8px; pointer-events: none;
       opacity: 0; transition: opacity .2s;
-      max-width: calc(100% - 0px);
     }
     #marker-toast.visible { opacity: 1; }
     #marker-toast svg { width: 13px; height: 13px; color: var(--warn); flex-shrink: 0; }
     #marker-toast span { font-size: 12px; font-family: var(--mono); color: var(--warn); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Bouton Suivant */
+    #btn-next {
+      display: none; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      background: var(--accent-glow); border: 1px solid var(--accent);
+      border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-family: var(--sans); font-weight: 500;
+      color: var(--accent);
+      transition: background .15s, transform .1s;
+      white-space: nowrap;
+    }
+    #btn-next.visible { display: flex; }
+    #btn-next:active { transform: scale(0.97); background: rgba(79,142,247,.25); }
+    #btn-next svg { width: 13px; height: 13px; }
 
     /* Contrôles */
     .tl-controls { display: flex; align-items: center; gap: 10px; }
@@ -88,8 +107,7 @@
       background: var(--warn); border-radius: 2px;
       transform: translate(-50%, -50%) rotate(45deg);
       cursor: pointer; pointer-events: all;
-      transition: transform .15s;
-      z-index: 2;
+      transition: transform .15s; z-index: 2;
     }
     .marker-pip:hover { transform: translate(-50%, -50%) rotate(45deg) scale(1.4); }
 
@@ -133,34 +151,36 @@
 <model-viewer id="viewer" camera-controls touch-action="none" autoplay shadow-intensity="0.6" environment-image="images/HDRI/city.hdr" exposure="1.1" ar ar-modes="webxr scene-viewer quick-look"></model-viewer>
 
 <div id="timeline">
-  <!-- Toast marqueur -->
-  <div id="marker-toast">
-    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2.5 5 5.5.8-4 3.9.9 5.5L8 13.5l-4.9 2.7.9-5.5L0 6.8l5.5-.8z"/></svg>
-    <span id="marker-label">—</span>
+  <div id="toast-zone">
+    <!-- Toast marqueur -->
+    <div id="marker-toast">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2.5 5 5.5.8-4 3.9.9 5.5L8 13.5l-4.9 2.7.9-5.5L0 6.8l5.5-.8z"/></svg>
+      <span id="marker-label">—</span>
+    </div>
+    <!-- Bouton Suivant -->
+    <button id="btn-next">
+      Suivant
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+    </button>
   </div>
 
   <div class="tl-controls">
-    <!-- Rewind -->
     <button class="icon-btn" id="btn-rewind" title="Retour au début">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 3h1.5v10H3V3zm9.5 0L7 8l5.5 5V3z"/></svg>
     </button>
-    <!-- Play/Pause -->
     <button class="icon-btn accent" id="btn-play">
       <svg id="icon-play" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l9 5-9 5V3z"/></svg>
       <svg id="icon-pause" viewBox="0 0 16 16" fill="currentColor" style="display:none"><path d="M5 3h2v10H5V3zm4 0h2v10H9V3z"/></svg>
     </button>
-    <!-- Scrubbar -->
     <div class="scrub-wrap" id="scrub-wrap">
       <div class="scrub-track" id="scrub-track">
         <div class="scrub-fill" id="scrub-fill"></div>
         <div class="scrub-thumb" id="scrub-thumb"></div>
       </div>
     </div>
-    <!-- Vitesse -->
     <button class="icon-btn" id="btn-speed">
       <span style="font-family:var(--mono);font-size:10px;font-weight:700" id="speed-label">1×</span>
     </button>
-    <!-- Temps -->
     <div class="tl-time" id="tl-time">0.0 / 0.0s</div>
   </div>
 </div>
@@ -183,19 +203,16 @@
 </div>
 
 <script>
-  // ─── Params URL ───
-  const params  = new URLSearchParams(window.location.search);
-  const modelId = params.get('model') || '';
-  const title   = params.get('title') || '';
-  const step    = params.get('step') || '';
-  const fps     = parseFloat(params.get('fps') || '24');
+  const params     = new URLSearchParams(window.location.search);
+  const modelId    = params.get('model') || '';
+  const title      = params.get('title') || '';
+  const step       = params.get('step') || '';
+  const fps        = parseFloat(params.get('fps') || '24');
   const markersRaw = params.get('markers') || '';
 
-  // Décoder les marqueurs (JSON encodé en base64 pour éviter les pb d'URL)
   let markers = [];
   try { if (markersRaw) markers = JSON.parse(atob(markersRaw)); } catch {}
 
-  // ─── Éléments DOM ───
   const viewer      = document.getElementById('viewer');
   const progress    = document.getElementById('progress');
   const hint        = document.getElementById('hint');
@@ -216,6 +233,7 @@
   const tlTime      = document.getElementById('tl-time');
   const markerToast = document.getElementById('marker-toast');
   const markerLabel = document.getElementById('marker-label');
+  const btnNext     = document.getElementById('btn-next');
 
   if (!modelId) {
     errorScreen.classList.add('visible');
@@ -226,7 +244,6 @@
     viewer.src = `models/${modelId}.glb`;
   }
 
-  // Progress chargement
   viewer.addEventListener('progress', (e) => {
     const pct = Math.round(e.detail.totalProgress * 100);
     progress.style.width = pct + '%';
@@ -234,11 +251,17 @@
   });
   viewer.addEventListener('error', () => { errorScreen.classList.add('visible'); viewer.style.display = 'none'; });
 
-  // ─── État animation ───
-  let playing  = false;
-  let duration = 0;
-  const speeds = [0.25, 0.5, 1, 2];
-  let speedIdx = 2;
+  // ─── État ───
+  let playing       = false;
+  let duration      = 0;
+  const speeds      = [0.25, 0.5, 1, 2];
+  let speedIdx      = 2;
+
+  // ─── Logique marqueurs/boucle ───
+  let currentMarkerIdx = -1;  // index du marqueur en cours de boucle (-1 = pas de boucle)
+  let looping          = false;
+  let loopStart        = 0;
+  let loopEnd          = 0;
 
   viewer.addEventListener('load', () => {
     const anims = viewer.availableAnimations;
@@ -261,48 +284,84 @@
     iconPause.style.display = p ? '' : 'none';
   }
 
-  // ─── Marqueurs sur la scrubbar ───
-  let toastTimeout = null;
-
+  // ─── Construire les pips ───
   function buildMarkerPips() {
     if (!markers.length || duration === 0) return;
-    markers.forEach(m => {
+    markers.forEach((m, i) => {
       const t   = m.frame / fps;
       const pct = Math.min(100, (t / duration) * 100);
       const pip = document.createElement('div');
       pip.className = 'marker-pip';
       pip.style.left = pct + '%';
       pip.title = m.label;
-      pip.addEventListener('click', (e) => {
-        e.stopPropagation();
-        viewer.currentTime = t;
-        viewer.pause();
-        playing = false;
-        setPlayUI(false);
-        showToast(m.label);
-      });
-      pip.addEventListener('touchend', (e) => {
-        e.stopPropagation();
-        viewer.currentTime = t;
-        viewer.pause();
-        playing = false;
-        setPlayUI(false);
-        showToast(m.label);
-      });
+      pip.addEventListener('click', (e) => { e.stopPropagation(); jumpToMarker(i); });
+      pip.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); jumpToMarker(i); }, { passive: false });
       scrubTrack.appendChild(pip);
     });
   }
 
-  function showToast(label) {
+  function jumpToMarker(i) {
+    const m = markers[i];
+    const t = m.frame / fps;
+    viewer.currentTime = t;
+    viewer.pause();
+    playing = false;
+    setPlayUI(false);
+    showToast(m.label);
+  }
+
+  // ─── Démarrer une boucle sur un marqueur ───
+  function startLoop(i) {
+    const m = markers[i];
+    currentMarkerIdx = i;
+    looping   = true;
+    loopEnd   = m.frame / fps;
+    loopStart = m.loop_start !== undefined
+      ? m.loop_start / fps
+      : Math.max(0, loopEnd - 1.0); // fallback : 1s avant le marqueur
+
+    // Jump au début de la boucle et jouer
+    viewer.currentTime = loopStart;
+    viewer.play({ repetitions: Infinity });
+    playing = true;
+    setPlayUI(true);
+
+    // Afficher le toast + bouton Suivant
+    showToast(m.label, true);
+    btnNext.classList.add('visible');
+  }
+
+  // ─── Continuer après "Suivant" ───
+  btnNext.addEventListener('click', continueAfterMarker);
+  btnNext.addEventListener('touchend', (e) => { e.preventDefault(); continueAfterMarker(); });
+
+  function continueAfterMarker() {
+    looping = false;
+    btnNext.classList.remove('visible');
+    markerToast.classList.remove('visible');
+
+    // Reprendre depuis loopEnd vers la suite
+    viewer.currentTime = loopEnd;
+    viewer.play({ repetitions: Infinity });
+    playing = true;
+    setPlayUI(true);
+    currentMarkerIdx = -1;
+  }
+
+  // ─── Toast ───
+  let toastTimeout = null;
+  function showToast(label, persistent = false) {
     markerLabel.textContent = label;
     markerToast.classList.add('visible');
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => markerToast.classList.remove('visible'), 3000);
+    if (!persistent) {
+      toastTimeout = setTimeout(() => markerToast.classList.remove('visible'), 3000);
+    }
   }
 
-  // ─── Ticker RAF ───
+  // ─── RAF ticker ───
   let rafId = null;
-  let lastMarkerIdx = -1;
+  let lastAutoMarkerIdx = -1;
 
   function startTick() {
     if (rafId) return;
@@ -310,18 +369,40 @@
       if (duration > 0) {
         const t   = viewer.currentTime || 0;
         const pct = (t / duration) * 100;
-        scrubFill.style.width  = pct + '%';
-        scrubThumb.style.left  = pct + '%';
+        scrubFill.style.width = pct + '%';
+        scrubThumb.style.left = pct + '%';
         tlTime.textContent = `${t.toFixed(1)} / ${duration.toFixed(1)}s`;
 
-        // Auto-toast quand on passe sur un marqueur (±0.15s)
-        if (playing && markers.length) {
-          const nearby = markers.findIndex(m => Math.abs((m.frame / fps) - t) < 0.15);
-          if (nearby !== -1 && nearby !== lastMarkerIdx) {
-            lastMarkerIdx = nearby;
-            showToast(markers[nearby].label);
-          } else if (nearby === -1) {
-            lastMarkerIdx = -1;
+        if (playing) {
+          // ─── Mode boucle : remettre au début de la boucle ───
+          if (looping && t >= loopEnd - 0.05) {
+            viewer.currentTime = loopStart;
+          }
+
+          // ─── Pas en boucle : détecter arrivée sur un marqueur ───
+          if (!looping && markers.length) {
+            const nearby = markers.findIndex(m => {
+              const mt = m.frame / fps;
+              return t >= mt - 0.08 && t <= mt + 0.08;
+            });
+            if (nearby !== -1 && nearby !== lastAutoMarkerIdx) {
+              lastAutoMarkerIdx = nearby;
+              // Déclencher la boucle si loop_start est défini
+              if (markers[nearby].loop_start !== undefined) {
+                startLoop(nearby);
+              } else {
+                showToast(markers[nearby].label);
+              }
+            } else if (nearby === -1) {
+              lastAutoMarkerIdx = -1;
+            }
+          }
+
+          // ─── Fin d'animation (hors boucle) ───
+          if (!looping && t >= duration - 0.05) {
+            viewer.pause();
+            playing = false;
+            setPlayUI(false);
           }
         }
       }
@@ -332,15 +413,29 @@
 
   // ─── Play/Pause ───
   btnPlay.addEventListener('click', () => {
-    if (playing) { viewer.pause(); playing = false; }
-    else { viewer.play({ repetitions: Infinity }); playing = true; }
+    if (playing) {
+      viewer.pause(); playing = false;
+    } else {
+      if (!looping && duration > 0 && viewer.currentTime >= duration - 0.05) {
+        viewer.currentTime = 0;
+        lastAutoMarkerIdx = -1;
+      }
+      viewer.play({ repetitions: Infinity }); playing = true;
+    }
     setPlayUI(playing);
   });
 
   // ─── Rewind ───
   btnRewind.addEventListener('click', () => {
+    looping = false;
+    btnNext.classList.remove('visible');
+    markerToast.classList.remove('visible');
+    currentMarkerIdx = -1;
+    lastAutoMarkerIdx = -1;
     viewer.currentTime = 0;
-    if (!playing) { viewer.play({ repetitions: Infinity }); playing = true; setPlayUI(true); }
+    viewer.play({ repetitions: Infinity });
+    playing = true;
+    setPlayUI(true);
   });
 
   // ─── Vitesse ───
@@ -353,10 +448,13 @@
   // ─── Scrubbar ───
   function scrubTo(e) {
     if (duration === 0) return;
-    const rect   = scrubWrap.getBoundingClientRect();
+    const rect    = scrubWrap.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const ratio  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const ratio   = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     viewer.currentTime = ratio * duration;
+    // Si on scrub manuellement, désactiver la boucle
+    looping = false;
+    btnNext.classList.remove('visible');
   }
 
   let scrubbing = false;
