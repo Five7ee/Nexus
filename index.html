@@ -30,25 +30,6 @@
     html { scroll-behavior: smooth; }
     body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-    /* ─── Nav ─── */
-    nav {
-      background: var(--sidebar); border-bottom: 1px solid var(--hover);
-      padding: 16px 24px; position: sticky; top: 0; z-index: 50;
-    }
-    .nav-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-    .nav-brand { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; color: white; text-decoration: none; }
-    .nav-brand svg { color: var(--active); }
-    .nav-links { display: flex; gap: 8px; }
-    .nav-link {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 12px;
-      font-size: 14px; font-weight: 500; color: var(--sidebar-text);
-      text-decoration: none; transition: background .15s, color .15s;
-    }
-    .nav-link:hover { background: var(--hover); color: white; }
-    .nav-link.active { background: var(--active); color: var(--sidebar); }
-    @media (max-width: 768px) { .nav-links { display: none; } }
-
     /* ─── Main ─── */
     main { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
 
@@ -63,14 +44,6 @@
       background: radial-gradient(ellipse at top right, rgba(255,255,255,0.1), transparent);
     }
     .page-header-inner { position: relative; z-index: 1; max-width: 600px; }
-    .page-eyebrow {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 12px; border-radius: 100px;
-      background: rgba(163,177,138,0.2); border: 1px solid rgba(163,177,138,0.3);
-      font-size: 11px; font-weight: 700; color: #E9EEDC;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      margin-bottom: 16px;
-    }
     .page-title { font-size: clamp(28px, 4vw, 42px); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 12px; }
     .page-title span { color: var(--active); }
     .page-desc { font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.6; }
@@ -143,29 +116,10 @@
 </head>
 <body>
 
-<nav>
-  <div class="nav-inner">
-    <a href="#" class="nav-brand">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
-      Nexus Builder
-    </a>
-    <div class="nav-links">
-      <a href="#" class="nav-link active">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Manuel de montage
-      </a>
-    </div>
-  </div>
-</nav>
-
 <main>
   <div class="page-header">
     <div class="page-header-inner">
-      <div class="page-eyebrow">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
-        Guide d'assemblage interactif
-      </div>
-      <h1 class="page-title" id="project-title">Chargement…</h1>
+      <h1 class="page-title">Guide d'assemblage <span>interactif</span></h1>
       <p class="page-desc" id="project-desc"></p>
     </div>
   </div>
@@ -203,8 +157,7 @@ async function init() {
   }
 
   const fps = config.fps || 24;
-  document.title = `${config.project} — Manuel de montage`;
-  document.getElementById('project-title').textContent = config.project;
+  document.title = `Guide d'assemblage interactif — Nexus Builder`;
   document.getElementById('project-desc').textContent = config.description || '';
 
   const grid = document.getElementById('steps-grid');
