@@ -1,0 +1,50 @@
+{
+  "project": "Mon Projet",
+  "description": "",
+  "fps": 24,
+  "steps": [
+    {
+      "id": "etape-01",
+      "step": 1,
+      "title": "Installation du CPU",
+      "description": "",
+      "model": "step01",
+      "image": "images/etape-01.png",
+      "markers": [
+        { "loop_in": 0,   "loop_out": 35,  "label": "Repérer le triangle d'alignement sur le socket", "loop_type": "boomerang" },
+        { "loop_in": 36,  "loop_out": 55,  "label": "Soulever le levier de rétention du socket", "loop_type": "pause" },
+        { "loop_in": 68,  "loop_out": 92,  "label": "Repérer le triangle d'alignement sur le processeur", "loop_type": "boomerang" },
+        { "loop_in": 97,  "loop_out": 121, "label": "Déposer le processeur sur le socket sans forcer", "loop_type": "pause" },
+        { "loop_in": 128, "loop_out": 150, "label": "Rabaisser la plaque de chargement", "loop_type": "pause" },
+        { "loop_in": 150, "loop_out": 185, "label": "Verrouiller le levier sous la patte de rétention", "loop_type": "boomerang" }
+      ]
+    },
+    {
+      "id": "etape-02",
+      "step": 2,
+      "title": "Installation de la RAM",
+      "description": "",
+      "model": "step02",
+      "image": "images/etape-02.png",
+      "markers": [
+        { "loop_in": 37, "loop_out": 57, "label": "Aligner la fente avec l'ergot" },
+        { "loop_in": 108, "loop_out": 130, "label": "Vérifier l'enclenchement des clips", "loop_type": "boomerang" }
+      ]
+    },
+    {
+      "id": "etape-03",
+      "step": 3,
+      "title": "Installation du ventirad",
+      "description": "",
+      "model": "step03",
+      "image": "images/etape-03.png",
+      "markers": [
+        { "loop_in": 30,  "loop_out": 39,  "label": "Placer les entretoises et les supports de montage", "loop_type": "pause" },
+        { "loop_in": 100, "loop_out": 110, "label": "Appliquer une noisette de pâte thermique au centre du CPU", "loop_type": "pause" },
+        { "loop_in": 132, "loop_out": 142, "label": "Déposer le ventirad délicatement sur le CPU", "loop_type": "pause" },
+        { "loop_in": 152, "loop_out": 170, "label": "Visser en alternant les côtés pour une pression homogène", "loop_type": "boomerang" },
+        { "loop_in": 197, "loop_out": 210, "label": "Engager les clips de fixation du ventilateur dans le radiateur", "loop_type": "boomerang" }
+      ]
+    }
+  ]
+}
