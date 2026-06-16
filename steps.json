@@ -45,6 +45,17 @@
         { "loop_in": 152, "loop_out": 170, "label": "Visser en alternant les côtés pour une pression homogène", "loop_type": "boomerang" },
         { "loop_in": 197, "loop_out": 210, "label": "Engager les clips de fixation du ventilateur dans le radiateur", "loop_type": "boomerang" }
       ]
+    },
+    {
+      "id": "etape-04",
+      "step": 4,
+      "title": "Installation du GPU",
+      "description": "",
+      "model": "step04",
+      "image": "images/etape-04.png",
+      "markers": [
+        { "loop_in": 67, "loop_out": 77, "label": "Brancher le GPU dans le slot PCIe", "loop_type": "pause" }
+      ]
     }
   ]
 }

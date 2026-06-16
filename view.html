@@ -12,16 +12,16 @@
 
     :root {
       --bg: #FDFCF8;
-      --text: #2C3333;
+      --text: #2C2A20;
       --text-dim: #6B7280;
-      --sidebar: #344E41;
-      --sidebar-text: #DAD7CD;
-      --active: #A3B18A;
-      --hover: #3A5A40;
-      --card: #F1F3E9;
-      --border: #E9EEDC;
-      --accent: #BC6C25;
-      --accent-glow: rgba(188,108,37,0.12);
+      --sidebar: #1E1C18;
+      --sidebar-text: #F0D090;
+      --active: #F09418;
+      --hover: #C87810;
+      --card: #FFF8EE;
+      --border: #F0D8A8;
+      --accent: #F09418;
+      --accent-glow: rgba(240,148,24,0.15);
       --mono: 'JetBrains Mono', monospace;
       --sans: 'Inter', system-ui, sans-serif;
     }
@@ -90,9 +90,13 @@
       background: var(--accent); border-radius: 2px;
       transform: translate(-50%, -50%) rotate(45deg);
       cursor: pointer; pointer-events: all;
-      transition: transform .15s; z-index: 2;
+      transition: transform .15s, box-shadow .15s; z-index: 2;
+      box-shadow: 0 0 6px 2px rgba(240,148,24,0.55), 0 0 14px 4px rgba(240,148,24,0.25);
     }
-    .marker-pip:hover { transform: translate(-50%, -50%) rotate(45deg) scale(1.4); }
+    .marker-pip:hover {
+      transform: translate(-50%, -50%) rotate(45deg) scale(1.4);
+      box-shadow: 0 0 10px 3px rgba(240,148,24,0.75), 0 0 20px 6px rgba(240,148,24,0.35);
+    }
 
     /* Boutons timeline */
     .tl-buttons { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
